@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signal Processing Calculators</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <button class="tab-button" onclick="showCalculator('q1Calculator')">Signal Processing Calculator</button>
+        <button class="tab-button" onclick="showCalculator('q2Calculator')">4G LTE Calculator</button>
+        <button class="tab-button" onclick="showCalculator('q3Calculator')">Rural Environment Calculator</button>
+        <button class="tab-button" onclick="showCalculator('q4Calculator')">CSMA Throughput Calculator</button>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <!-- Q1 Calculator -->
+            <div id="q1Calculator" class="calculator">
+                <h2 class="centered-h2">Signal Processing Calculator</h2>
+                <div class="input-group">
+                    <label for="bandwidthQ1">Bandwidth (Hz):</label>
+                    <input type="number" id="bandwidthQ1" placeholder="4000">
+                </div>
+                <div class="input-group">
+                    <label for="quantizerBitsQ1">Quantizer Bits:</label>
+                    <input type="number" id="quantizerBitsQ1" placeholder="8">
+                </div>
+                <div class="input-group">
+                    <label for="compressionRateQ1">Compression Rate:</label>
+                    <input type="number" step="0.01" id="compressionRateQ1" placeholder="0.25">
+                </div>
+                <div class="input-group">
+                    <label for="channelEncoderRateQ1">Channel Encoder Rate:</label>
+                    <input type="number" step="0.01" id="channelEncoderRateQ1" placeholder="0.5">
+                </div>
+                <div class="input-group">
+                    <label for="interleaverBitsQ1">Interleaver Bits:</label>
+                    <input type="number" id="interleaverBitsQ1" placeholder="1024">
+                </div>
+                <button onclick="calculateQ1()">Calculate</button>
+                <div id="q1Output"></div>
+            </div>
+
+            <!-- Q2 Calculator -->
+            <div id="q2Calculator" class="calculator">
+                <h2 class="centered-h2">4G LTE Calculator</h2>
+                <div class="input-group">
+                    <label for="resourceBlockBandwidthQ2">Resource Block Bandwidth (kHz):</label>
+                    <input type="number" id="resourceBlockBandwidthQ2" placeholder="180">
+                </div>
+                <div class="input-group">
+                    <label for="subcarrierSpacingQ2">Subcarrier Spacing (kHz):</label>
+                    <input type="number" id="subcarrierSpacingQ2" placeholder="15">
+                </div>
+                <div class="input-group">
+                    <label for="ofdmSymbolsQ2">OFDM Symbols per Resource Block:</label>
+                    <input type="number" id="ofdmSymbolsQ2" placeholder="7">
+                </div>
+                <div class="input-group">
+                    <label for="resourceBlockDurationQ2">Resource Block Duration (ms):</label>
+                    <input type="number" step="0.01" id="resourceBlockDurationQ2" placeholder="0.5">
+                </div>
+                <!-- For the Modulation input -->
+                <div class="input-group">
+                    <label for="modulationQ2">Modulation (e.g., 1024-QAM):</label>
+                    <select id="modulationQ2">
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="8">8</option>
+                        <option value="16">16</option>
+                        <option value="32">32</option>
+                        <option value="64">64</option>
+                        <option value="128">128</option>
+                        <option value="256">256</option>
+                        <option value="512">512</option>
+                        <option value="1024">1024</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="parallelResourceBlocksQ2">Parallel Resource Blocks:</label>
+                    <input type="number" id="parallelResourceBlocksQ2" placeholder="4">
+                </div>
+                <button onclick="calculateQ2()">Calculate</button>
+                <div id="q2Output"></div>
+            </div>
+
+            <!-- Q3 Calculator -->
+            <div id="q3Calculator" class="calculator">
+                <h2 class="centered-h2">Rural Environment Calculator</h2>
+
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="pathLossQ3">Path Loss Lp (dB):</label>
+                            <input type="number" id="pathLossQ3" placeholder="140">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="frequencyQ3">Frequency (MHz):</label>
+                            <input type="number" id="frequencyQ3" placeholder="900">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="transmitAntennaGainQ3">Transmit Ant Gain GT (dB):</label>
+                            <input type="number" id="transmitAntennaGainQ3" placeholder="8">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="receiveAntennaGainQ3">Receive Ant Gain Rp (dB):</label>
+                            <input type="number" id="receiveAntennaGainQ3" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="dataRateQ3">Data Rate R (kbps):</label>
+                            <input type="number" id="dataRateQ3" placeholder="9.6">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="antennaFeedLossQ3">Ant Feed Line Loss Lf (dB):</label>
+                            <input type="number" id="antennaFeedLossQ3" placeholder="12">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="otherLossesQ3">Other Losses Lo (dB):</label>
+                            <input type="number" id="otherLossesQ3" placeholder="20">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="fadeMarginQ3">Fade Margin Lfmargin (dB):</label>
+                            <input type="number" id="fadeMarginQ3" placeholder="8">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="receiverAmplifierGainQ3">Rec Amplifier Gain Ar (dB):</label>
+                            <input type="number" id="receiverAmplifierGainQ3" placeholder="24">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="noiseFigureQ3">Noise Figure Total Nt (dB):</label>
+                            <input type="number" id="noiseFigureQ3" placeholder="6">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="noiseTemperatureQ3">Noise Temperature T (K):</label>
+                            <input type="number" id="noiseTemperatureQ3" placeholder="290">
+                        </div>
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="linkMarginQ3">Link Margin M (dB):</label>
+                            <input type="number" id="linkMarginQ3" placeholder="8">
+                        </div>
+                    </div>
+                </div>
+                <div class="input-group">
+                    <div style="display: flex; justify-content: space-between;">
+                        <div style="flex: 1; margin-right: 25px;">
+                            <label for="bitErrorRateQ3">Max Bit Error Rate (BER):</label>
+                            <input type="number" id="bitErrorRateQ3" placeholder="0.0001">
+                        </div>
+                        <!-- Add the second input field here -->
+                        <div style="flex: 1; margin-left: 5px;">
+                            <label for="modulationTypeQ3">Modulation Type:</label>
+                            <select id="modulationTypeQ3">
+                                <option value="8-PSK">8-PSK</option>
+                                <option value="16-PSK">16-PSK</option>
+                                <option value="BPSK/QPSK">BPSK/QPSK</option>
+                            </select><br>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="calculateQ3()">Calculate</button>
+                <div id="q3Output"></div>
+            </div>
+
+
+            <!-- Q4 Calculator -->
+            <div id="q4Calculator" class="calculator">
+                <h2 class="centered-h2">CSMA Throughput Calculator</h2>
+                <div class="input-group">
+                    <label for="bandwidthQ4">Bandwidth (Mbps):</label>
+                    <input type="number" id="bandwidthQ4" placeholder="20">
+                </div>
+                <div class="input-group">
+                    <label for="maxPropagationTimeQ4">Max Signal Propagation Time 𝜏 (μsec):</label>
+                    <input type="number" id="maxPropagationTimeQ4" placeholder="40">
+                </div>
+                <div class="input-group">
+                    <label for="frameSizeQ4">Frame Size (Kbit):</label>
+                    <input type="number" id="frameSizeQ4" placeholder="10">
+                </div>
+                <div class="input-group">
+                    <label for="frameRateQ4">Frame Rate (Kfps):</label>
+                    <input type="number" id="frameRateQ4" placeholder="5">
+                </div>
+                <button onclick="calculateQ4()">Calculate</button>
+                <div id="q4Output"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<div class="equations">
+    <h2>Equations</h2>
+    <div id="equationsFormula"></div>
+</div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
