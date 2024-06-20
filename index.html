@@ -7,6 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Signal Processing Calculators</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.4/xlsx.full.min.js"></script>
+
 </head>
 
 <body>
@@ -213,7 +215,7 @@
 
             <!-- New Q5 Calculator -->
             <div id="q5Calculator" class="calculator">
-                <h2>GSM Network Calculator</h2>
+                <h2 class="centered-h2">GSM Network Calculator</h2>
                 <div class="input-group">
                     <label for="cityAreaQ5">City Area (Km<sup>2</sup>):</label>
                     <input type="number" id="cityAreaQ5" value="4" step="0.01"><br>
@@ -263,14 +265,11 @@
                     <label for="receiverSensitivityQ5">Receiver Sensitivity (watts):</label>
                     <input type="number" id="receiverSensitivityQ5" value="7e-6" step="1e-6"><br>
                 </div>
-
                     <button type="button" onclick="calculateQ5()">Calculate</button>
-                </form>
+                </div>
                 <div id="q5Output"></div>
             </div>
-
         </div>
-
     </div>
 
 </div>

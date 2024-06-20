@@ -379,57 +379,73 @@ const equations = `
     document.getElementById('equationsFormula').scrollIntoView({ behavior: 'smooth' });
 }
 
-
 function calculateQ5() {
-    const cityArea = parseFloat(document.getElementById('cityAreaQ5').value) * 1000000; // convert km2 to m2
+    // Parse inputs and convert city area to m^2
+    const cityArea = parseFloat(document.getElementById('cityAreaQ5').value) * 1000000; 
     const subscribers = parseFloat(document.getElementById('subscribersQ5').value);
     const callsPerDay = parseFloat(document.getElementById('callsPerDayQ5').value);
     const callDuration = parseFloat(document.getElementById('callDurationQ5').value);
-    const callDropProbability = parseFloat(document.getElementById('callDropProbabilityQ5').value);
     const sir = parseFloat(document.getElementById('sirQ5').value);
     const referencePower = parseFloat(document.getElementById('referencePowerQ5').value);
     const referenceDistance = parseFloat(document.getElementById('referenceDistanceQ5').value);
     const pathLossExponent = parseFloat(document.getElementById('pathLossExponentQ5').value);
     const receiverSensitivity = parseFloat(document.getElementById('receiverSensitivityQ5').value);
+    const callDropProbabilityQ5 = parseFloat(document.getElementById('callDropProbabilityQ5').value);
 
     // Check for invalid inputs
-    if (isNaN(cityArea) || isNaN(subscribers) || isNaN(callsPerDay) || isNaN(callDuration) || isNaN(callDropProbability) || isNaN(sir) || isNaN(referencePower) || isNaN(referenceDistance) || isNaN(pathLossExponent) || isNaN(receiverSensitivity)) {
+    if (isNaN(cityArea) || isNaN(subscribers) || isNaN(callsPerDay) || isNaN(callDuration) || isNaN(sir) || isNaN(referencePower) || isNaN(referenceDistance) || isNaN(pathLossExponent) || isNaN(receiverSensitivity)) {
         alert('Please enter valid numbers for all fields.');
         return;
     }
 
-    const referencePowerdiv = referencePower/10;
-    const newReferencePower = Math.pow(10,referencePowerdiv);
+    // Calculate maximum distance d
+    const referencePowerdiv = referencePower / 10;
+    const newReferencePower = Math.pow(10, referencePowerdiv);
     const d = referenceDistance / Math.pow((receiverSensitivity / newReferencePower), 1 / pathLossExponent);
-    const acell = ((3 * Math.sqrt(3))/2)*Math.pow(d,2);
+    const acell = ((3 * Math.sqrt(3)) / 2) * Math.pow(d, 2);
     const ncells = cityArea / acell;
     const trafficLoadSystem = (subscribers * callsPerDay * callDuration) / (24 * 60);
     const trafficLoadCell = trafficLoadSystem / ncells;
     const coChannelInterferenceCells = 6;
-    const newSIR = Math.pow(10,sir/10).toFixed(2);
-    const a = newSIR*coChannelInterferenceCells;
-    const b = Math.pow(a,1/3);
-    const c = Math.pow(b,2);
-    const clusterSize = Math.ceil(c/3);
-    
-    const xls = require('xls');
-    // Load the Excel file
-    const workbook = xls.readFile('Erlang_B_Table.xls');
-    const sheetName = workbook.SheetNames[0]; // Adjust the sheet name if necessary
-    const worksheet = workbook.Sheets[sheetName];
+    const newSIR = Math.pow(10, sir / 10);
+    const a = newSIR * coChannelInterferenceCells;
+    const b = Math.pow(a, 1 / 3);
+    const c = Math.pow(b, 2);
+    const clusterSize = Math.ceil(c / 3);
 
-    // Convert the worksheet to JSON
-    const data = xls.utils.sheet_to_json(worksheet);
-    const u = getErlangBValue(0.02,8.08);
+    // Erlang B Value Calculation using the updated table for given QoS
+    function erlangBTable(A, QoS) {
+        const QoSTable = {
+            0.02: [0.020, 0.223, 0.602, 1.09, 1.66, 2.28, 2.94, 3.63, 4.34, 5.08, 5.84, 6.61, 7.40, 8.20, 9.01, 9.83, 10.7, 11.5, 12.3, 13.2],
+            0.05: [0.053, 0.381, 0.899, 1.52, 2.22, 2.96, 3.74, 4.54, 5.37, 6.22, 7.08, 7.95, 8.83, 9.73, 10.6, 11.5, 12.5, 13.4, 14.3, 15.2]
+        };
 
+        const erlangs = QoSTable[QoS];
+        let closest = null;
+        let channels = null;
+        
+        for (let i = 0; i < erlangs.length; i++) {
+            if (erlangs[i] >= A) {
+                closest = erlangs[i];
+                channels = i + 1;
+                break;
+            }
+        }
+        
+        // If no value in the table is greater than or equal to A, use the last value
+        if (closest === null) {
+            closest = erlangs[erlangs.length - 1];
+            channels = erlangs.length;
+        }
+        
+        return { channels: channels, erlang: closest };
+    }
 
+    const erlangBQoS002 = erlangBTable(trafficLoadCell, callDropProbabilityQ5);
 
-
-
-    const erlangsPerChannel = 0.7; 
-    const carriersRequired = Math.ceil(trafficLoadSystem / erlangsPerChannel);
-    const erlangsPerChannelQoS05 = 0.9; 
-    const carriersRequiredQoS05 = Math.ceil(trafficLoadSystem / erlangsPerChannelQoS05);
+    // Calculate the number of carriers needed
+    const timeslotsPerCarrier = 8;
+    const carriersQoS002 = Math.ceil(erlangBQoS002.channels / timeslotsPerCarrier);
 
     const equations = `
         <pre>
@@ -447,19 +463,19 @@ function calculateQ5() {
         Pr,sen = ${receiverSensitivity} = 10^${referencePower} * (--------)^${pathLossExponent}
                                          d
         
-        Max Distance (d) = ${d} meters
+        Max Distance (d) = ${d.toFixed(2)} meters
 
         ----------------------------------------------------------
 
                          3√3           3√3
-        Max Cell Size = ----- * R^2 = ----- * ${d}^2 = ${acell} m^2
+        Max Cell Size = ----- * R^2 = ----- * ${d.toFixed(2)}^2 = ${acell.toFixed(2)} m^2
                           2             2
 
         ----------------------------------------------------------
 
         Number of Cells = City Area / Max Cell Size
-                       = ${cityArea} / ${acell.toFixed(2)}
-                       = ${ncells.toFixed(2)} cell
+                        = ${cityArea} / ${acell.toFixed(2)}
+                        = ${ncells.toFixed(2)} cells
 
         ----------------------------------------------------------
 
@@ -474,26 +490,41 @@ function calculateQ5() {
                             = ${trafficLoadCell.toFixed(2)} Erlangs
 
         ----------------------------------------------------------
+
                             (√(3 * N)^n     (√3 * N)^${pathLossExponent}
         Cluster Size SIR = ------------ = ------------
                                 NB             ${coChannelInterferenceCells}
 
-                              (√(3 * N))^${pathLossExponent}
-                     ${newSIR} = ------------
-                                  ${coChannelInterferenceCells}
+                                          (√(3 * N))^${pathLossExponent}
+                                  ${newSIR.toFixed(2)} = ------------
+                                              ${coChannelInterferenceCells}
 
-                     N = ${clusterSize}
+                                      N = ${clusterSize}
         ----------------------------------------------------------  
         
-        ${u}
-        
-        Carriers Required (QoS 0.02) = ceil(Traffic Load (System) / Erlangs per Channel)
-                                     = ceil(${trafficLoadSystem.toFixed(2)} / ${erlangsPerChannel})
-                                     = ${carriersRequired}
+        From Erlang B Table with P_b = ${callDropProbabilityQ5}
 
-        Carriers Required (QoS 0.05) = ceil(Traffic Load (System) / Erlangs per Channel)
-                                     = ceil(${trafficLoadSystem.toFixed(2)} / ${erlangsPerChannelQoS05})
-                                     = ${carriersRequiredQoS05}
+        And A_cell = ${trafficLoadCell} Erlang
+
+        Number of channel = ${erlangBQoS002.channels}
+
+                                     Number of channel
+        Number of Carrier /cell = ------------------------
+                                   time slots Per Carrier
+
+                                     ${erlangBQoS002.channels}
+                                = --------
+                                     ${timeslotsPerCarrier}
+
+                                = ${carriersQoS002} carriers
+
+                                            
+        Number of Carrier /whole system = N * Number of Carrier per cell
+                                        
+                                        = ${clusterSize} * ${carriersQoS002}
+
+                                        = ${clusterSize * carriersQoS002} carriers
+        
         </pre>
     `;
 
@@ -501,29 +532,20 @@ function calculateQ5() {
 
     const output = `
         <p>1. Maximum Distance: ${d.toFixed(2)} meters</p>
-        <p>2. Maximum Cell Size: ${maxCellSize.toFixed(2)} m<sup>2</sup></p>
-        <p>3. Number of Cells: ${numberOfCells.toFixed(2)}</p>
+        <p>2. Maximum Cell Size: ${acell.toFixed(2)} m<sup>2</sup></p>
+        <p>3. Number of Cells: ${ncells.toFixed(2)}</p>
         <p>4. Traffic Load (System): ${trafficLoadSystem.toFixed(2)} Erlangs</p>
         <p>5. Traffic Load (Cell): ${trafficLoadCell.toFixed(2)} Erlangs</p>
         <p>6. Cluster Size: ${clusterSize}</p>
-        <p>7. Minimum Carriers Required (QoS 0.02): ${carriersRequired}</p>
-        <p>8. Minimum Carriers Required (QoS 0.05): ${carriersRequiredQoS05}</p>
+        <p>9. Minimum number of carriers needed (QoS ${callDropProbabilityQ5}): ${clusterSize * carriersQoS002}</p>
     `;
 
     document.getElementById('q5Output').innerHTML = output;
 
     // Scroll to the equationsFormula div
-    document.getElementById('equationsFormula').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('equationsFormula').scrollIntoView();
 }
 
-// Function to get the Erlang B value based on traffic and number of lines
-function getErlangBValue(traffic, lines) {
-    const result = data.find(row => row['Traffic'] === traffic);
-    if (result) {
-        return result[lines];
-    }
-    return null;
-}
 
 // Initial display of the first calculator
 showCalculator('q1Calculator');
