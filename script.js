@@ -391,6 +391,7 @@ function calculateQ5() {
     const pathLossExponent = parseFloat(document.getElementById('pathLossExponentQ5').value);
     const receiverSensitivity = parseFloat(document.getElementById('receiverSensitivityQ5').value);
     const callDropProbabilityQ5 = parseFloat(document.getElementById('callDropProbabilityQ5').value);
+    const timeslotsPerCarrier = parseFloat(document.getElementById('timeslotsPerCarrier').value);
 
     // Check for invalid inputs
     if (isNaN(cityArea) || isNaN(subscribers) || isNaN(callsPerDay) || isNaN(callDuration) || isNaN(sir) || isNaN(referencePower) || isNaN(referenceDistance) || isNaN(pathLossExponent) || isNaN(receiverSensitivity)) {
@@ -444,7 +445,6 @@ function calculateQ5() {
     const erlangBQoS002 = erlangBTable(trafficLoadCell, callDropProbabilityQ5);
 
     // Calculate the number of carriers needed
-    const timeslotsPerCarrier = 8;
     const carriersQoS002 = Math.ceil(erlangBQoS002.channels / timeslotsPerCarrier);
 
     const equations = `
